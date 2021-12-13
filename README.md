@@ -90,7 +90,7 @@ Archive:  dls-orm.zip
 1. Make sure you select **My Configurations** and then upload the zip file downloaded in the previous step.
 1. Set a name for the stack and click Next.
 1. Set the required variables values and then Create.
-    ![create stack](images/create-dls-stack.mp4)
+    ![create stack](images/create-dls-orm.mp4)
 
 1. From the stack details page, Select **Plan** button and make sure it completes successfully.
 
