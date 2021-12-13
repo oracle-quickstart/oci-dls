@@ -1,6 +1,7 @@
 #*************************************
 #           TF Requirements
 #*************************************
+
 variable "tenancy_ocid" {
   default = ""
 }
@@ -23,7 +24,6 @@ variable "non_admin_users" {
   type = list
   default = []
 }
-
 
 #*************************************
 #          IAM Specific
