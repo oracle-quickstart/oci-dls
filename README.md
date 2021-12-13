@@ -20,16 +20,85 @@ Below is a list of all artifacts that will be provisioned:
 - You need a user with an **Administrator** privileges to execute the ORM stack or Terraform scripts.
 - Make sure your tenancy has service limits availabilities for the above components in the table.
 
-## Using Resource Manager
+## Using Terraform
 
-1. clone repo `git clone git@github.com:oracle-quickstart/oci-dls.git`
+1. Clone repo
 
-1. First off we'll need to do some pre deploy setup.  That's all detailed [here](https://github.com/oracle/oci-quickstart-prerequisites).
+   ```bash
+   git clone git@github.com:oracle-quickstart/oci-dls.git
+   cd oci-dls/
+   ```
 
-1. Note, the instructions below build a `.zip` file from you local copy for use in ORM.
+1. Create a copy of the file **oci-dls/terraform.tfvars.example** in the same directory and name it **terraform.tfvars**.
 
+1. Open the newly created **oci-dls/terraform.tfvars** file and edit the following sections:
+    - **TF Requirements** : Add your Oracle Cloud Infrastructure user and tenant details:
+
+        ```text
+           #*************************************
+           #           TF Requirements
+           #*************************************
+
+           // Oracle Cloud Infrastructure Region, user "Region Identifier" as documented here https://docs.cloud.oracle.com/en-us/iaas/Content/General/Concepts/regions.htm
+           region=""
+           // The Compartment OCID to provision artificats within
+           compartment_ocid=""
+           // Oracle Cloud Infrastructure User OCID, more details can be found at https://docs.cloud.oracle.com/en-us/iaas/Content/API/Concepts/apisigningkey.htm#five
+           user_ocid=""
+           // Oracle Cloud Infrastructure tenant OCID, more details can be found at https://docs.cloud.oracle.com/en-us/iaas/Content/API/Concepts/apisigningkey.htm#five
+           tenancy_ocid=""
+           // Path to private key used to create Oracle Cloud Infrastructure "API Key", more details can be found at https://docs.cloud.oracle.com/en-us/iaas/Content/General/Concepts/credentials.htm#two
+           private_key_path=""
+           // "API Key" fingerprint, more details can be found at https://docs.cloud.oracle.com/en-us/iaas/Content/General/Concepts/credentials.htm#two
+           fingerprint=""
+        ```
+
+    - **IAM Requirements**: Check default values for IAM artifacts and change them if needed
+
+        ```text
+           #*************************************
+           #          IAM Specific
+           #*************************************
+
+           // ODS IAM Group Name (no spaces)
+           ods_group_name= "DataScienceGroup"
+           // ODS IAM Dynamic Group Name (no spaces)
+           ods_dynamic_group_name= "DataScienceDynamicGroup"
+           // ODS IAM Policy Name (no spaces)
+           ods_policy_name= "DataSciencePolicies"
+           // ODS IAM Root Policy Name (no spaces)
+           ods_root_policy_name= "DataScienceRootPolicies"
+           // If enabled, the needed OCI policies to manage "OCI Vault service" will be created
+           enable_vault_policies= true
+        ```
+
+1. Open file **oci-dls/provider.tf** and uncomment the (user_id , fingerprint, private_key_path) in the **_two_** providers (**Default Provider** and **Home Provider**)
+
+    ```text
+        // Default Provider
+        provider "oci" {
+          region = var.region
+          tenancy_ocid = var.tenancy_ocid
+          ###### Uncomment the below if running locally using terraform and not as Oracle Cloud Infrastructure Resource Manager stack #####
+        //  user_ocid = var.user_ocid
+        //  fingerprint = var.fingerprint
+        //  private_key_path = var.private_key_path
+
+        }
+
+        // Home Provider
+        provider "oci" {
+          alias            = "home"
+          region           = lookup(data.oci_identity_regions.home-region.regions[0], "name")
+          tenancy_ocid = var.tenancy_ocid
+          ###### Uncomment the below if running locally using terraform and not as Oracle Cloud Infrastructure Resource Manager stack #####
+        //  user_ocid = var.user_ocid
+        //  fingerprint = var.fingerprint
+        //  private_key_path = var.private_key_path
+
+        }
+    ```
 1. Make sure you have terraform v0.14+ cli installed and accessible from your terminal.
-
 
 1. In order to `build` the zip file with the latest changes you made to this code, you can simply go to [build-orm](./build-orm) folder and use terraform to generate a new zip file:
 
@@ -86,6 +155,8 @@ Archive:  dls-orm.zip
      5571                     4 files
 ```
 
+## Using Resource Manager
+
 1. From Oracle Cloud Infrastructure **Console/Resource Manager**, create a new stack.
 1. Make sure you select **My Configurations** and then upload the zip file downloaded in the previous step.
 1. Set a name for the stack and click Next.
@@ -98,92 +169,11 @@ Archive:  dls-orm.zip
 
 1. To destroy all created artifacts, from the stack details page, Select **Destroy** under **Terraform Actions** menu button and make sure it completes successfully.
 
-### Understanding Provisioning Options
+### Provisioning Options
 
 - **IAM Groups/Policies** change default names of Groups and Policies to be created.
 
     ![IAM Configs](images/iam_variables.png)
-
-
-    ## Using Terraform
-
-    1. Clone repo
-
-       ```bash
-       git clone git@github.com:oracle-quickstart/oci-dls.git
-       cd oci-dls/terraform
-       ```
-
-    1. Create a copy of the file **oci-dls/terraform/terraform.tfvars.example** in the same directory and name it **terraform.tfvars**.
-    1. Open the newly created **oci-dls/terraform/terraform.tfvars** file and edit the following sections:
-        - **TF Requirements** : Add your Oracle Cloud Infrastructure user and tenant details:
-
-            ```text
-               #*************************************
-               #           TF Requirements
-               #*************************************
-
-               // Oracle Cloud Infrastructure Region, user "Region Identifier" as documented here https://docs.cloud.oracle.com/en-us/iaas/Content/General/Concepts/regions.htm
-               region=""
-               // The Compartment OCID to provision artificats within
-               compartment_ocid=""
-               // Oracle Cloud Infrastructure User OCID, more details can be found at https://docs.cloud.oracle.com/en-us/iaas/Content/API/Concepts/apisigningkey.htm#five
-               user_ocid=""
-               // Oracle Cloud Infrastructure tenant OCID, more details can be found at https://docs.cloud.oracle.com/en-us/iaas/Content/API/Concepts/apisigningkey.htm#five
-               tenancy_ocid=""
-               // Path to private key used to create Oracle Cloud Infrastructure "API Key", more details can be found at https://docs.cloud.oracle.com/en-us/iaas/Content/General/Concepts/credentials.htm#two
-               private_key_path=""
-               // "API Key" fingerprint, more details can be found at https://docs.cloud.oracle.com/en-us/iaas/Content/General/Concepts/credentials.htm#two
-               fingerprint=""
-            ```
-
-        - **IAM Requirements**: Check default values for IAM artifacts and change them if needed
-
-            ```text
-               #*************************************
-               #          IAM Specific
-               #*************************************
-
-               // ODS IAM Group Name (no spaces)
-               ods_group_name= "DataScienceGroup"
-               // ODS IAM Dynamic Group Name (no spaces)
-               ods_dynamic_group_name= "DataScienceDynamicGroup"
-               // ODS IAM Policy Name (no spaces)
-               ods_policy_name= "DataSciencePolicies"
-               // ODS IAM Root Policy Name (no spaces)
-               ods_root_policy_name= "DataScienceRootPolicies"
-               // If enabled, the needed OCI policies to manage "OCI Vault service" will be created
-               enable_vault_policies= true
-            ```
-
-    1. Open file **oci-dls/terraform/provider.tf** and uncomment the (user_id , fingerprint, private_key_path) in the **_two_** providers (**Default Provider** and **Home Provider**)
-
-        ```text
-            // Default Provider
-            provider "oci" {
-              region = var.region
-              tenancy_ocid = var.tenancy_ocid
-              ###### Uncomment the below if running locally using terraform and not as Oracle Cloud Infrastructure Resource Manager stack #####
-            //  user_ocid = var.user_ocid
-            //  fingerprint = var.fingerprint
-            //  private_key_path = var.private_key_path
-
-            }
-
-
-
-            // Home Provider
-            provider "oci" {
-              alias            = "home"
-              region           = lookup(data.oci_identity_regions.home-region.regions[0], "name")
-              tenancy_ocid = var.tenancy_ocid
-              ###### Uncomment the below if running locally using terraform and not as Oracle Cloud Infrastructure Resource Manager stack #####
-            //  user_ocid = var.user_ocid
-            //  fingerprint = var.fingerprint
-            //  private_key_path = var.private_key_path
-
-            }
-        ```
 
 ## Contributing
 
