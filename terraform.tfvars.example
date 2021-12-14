@@ -15,36 +15,22 @@ dls_root_policy_name = "DataLabelingRootPolicies"
 #*************************************
 
 // OCI Region, user "Region Identifier" as documented here https://docs.cloud.oracle.com/en-us/iaas/Content/General/Concepts/regions.htm
-region = "us-ashburn-1"
+region = ""
 
 // OCI User OCID, more details can be found at https://docs.cloud.oracle.com/en-us/iaas/Content/API/Concepts/apisigningkey.htm#five
-
-//shwss
-user_ocid = "ocid1.user.oc1..aaaaaaaaapiyad3csexfzdnnpshavsrqcqn5bxczveuinfn34xhcevfgtv2a"
-//non admin user
-// user_ocid = "ocid1.user.oc1..aaaaaaaaba5v4kztkhsh54etsgqtqkykdhmdngws2fj3fnccctjenkxddalq"
-
+user_ocid = ""
 
 // OCI tenant OCID, more details can be found at https://docs.cloud.oracle.com/en-us/iaas/Content/API/Concepts/apisigningkey.htm#five
-tenancy_ocid = "ocid1.tenancy.oc1..aaaaaaaal2huehzsavuttp65t3qhmxo57qyun2x4wp3pui4ewi56onhlwh7a"
+tenancy_ocid = ""
 
 // Path to private key used to create OCI "API Key", more details can be found at https://docs.cloud.oracle.com/en-us/iaas/Content/General/Concepts/credentials.htm#two
-
-//shwss
-private_key_path = "/Users/shwethasridharan/Downloads/shwss-11-15-12-07.pem"
-//non admin users
-// private_key_path = "/Users/shwethasridharan/Downloads/nonadminuser-11-15-12-13.pem"
-
+private_key_path = ""
 
 // "API Key" fingerprint, more details can be found at https://docs.cloud.oracle.com/en-us/iaas/Content/General/Concepts/credentials.htm#two
-
-//shwss
-fingerprint = "30:e9:9a:cd:16:14:ac:53:5c:0a:f6:d0:ee:5f:7e:f4"
-// non admin user
-// fingerprint = "4a:a3:1f:90:e0:d9:a3:2a:b9:88:7b:e9:00:7f:74:d6"
+fingerprint = ""
 
 // Name of the root compartment
-compartment_name = "orm-stack-test"
+compartment_name = ""
 
 // List of users to be added to the group by admin user
-non_admin_users =["ocid1.user.oc1..aaaaaaaaba5v4kztkhsh54etsgqtqkykdhmdngws2fj3fnccctjenkxddalq","ocid1.user.oc1..aaaaaaaajym3h4vtu5rwxefsjxnz5nsfjbrunnerrzldxd7rpg3cd66sjo6q","ocid1.user.oc1..aaaaaaaa75tzpsntp2u5lmplgzhdtxj4w54dar4wc4fzlcrf6v7ns37l5wgq"]
+non_admin_users =["","",""]
