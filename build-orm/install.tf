@@ -1,5 +1,5 @@
 variable "save_to" {
-    default = "/Users/shwethasridharan/Downloads/dls_orm/"
+    default = ""
 }
 
 data "archive_file" "generate_zip" {
