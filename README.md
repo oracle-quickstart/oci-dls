@@ -1,42 +1,106 @@
-# oci-quickstart-template
+# Provision Data Labeling Service (DLS) Using OCI Resource Manager and Terraform
 
-The [Oracle Cloud Infrastructure (OCI) Quick Start](https://github.com/oracle-quickstart?q=oci-quickstart) is a collection of examples that allow Oracle Cloud Infrastructure users to get a quick start deploying advanced infrastructure on OCI.
+## Introduction
 
-The oci-quickstart-template repository contains the template that can be used for accelerating the construction of quickstarts that runs from local Terraform CLI, [OCI Resource Manager](https://docs.cloud.oracle.com/en-us/iaas/Content/ResourceManager/Concepts/resourcemanager.htm) and [OCI Cloud Shell](https://docs.cloud.oracle.com/en-us/iaas/Content/API/Concepts/cloudshellintro.htm).
+[![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/oracle-quickstart/oci-ods-orm/releases/download/1.0.6/oci-ods-orm-v1.0.6.zip)
 
-Simple is a sample quickstart terraform template that deploys a virtual machine on a Virtual Cloud Network.
-Simple can be customized to subscribe and launch Marketplace images, Platform images or Custom images.
+This solution allows you to provision [Data Labeling Service (**_DLS_**)](https://docs.oracle.com/en-us/iaas/data-labeling/data-labeling/using/home.htm) and all its related artifacts using [Terraform](https://www.terraform.io/docs/providers/oci/index.html) and [Oracle Cloud Infrastructure Resource Manager](https://docs.cloud.oracle.com/en-us/iaas/Content/ResourceManager/Concepts/resourcemanager.htm).
 
-This repo is under active development.  Building open source software is a community effort.  We're excited to engage with the community building this.
+Below is a list of all artifacts that will be provisioned:
 
-## Resource Manager Deployment
+| Component    | Default Name            | Optional |  Notes
+|--------------|-------------------------|----------|:-----------|
+| [Group](https://docs.cloud.oracle.com/en-us/iaas/Content/Identity/Tasks/managinggroups.htm)        | Oracle Cloud Infrastructure Users Group              | False    | All Policies are granted to this group, you can add users to this group to grant me access to ODS services.
+| [Dynamic Group](https://docs.cloud.oracle.com/en-us/iaas/Content/Identity/Tasks/managingdynamicgroups.htm) | Oracle Cloud Infrastructure Dynamic Group           | False    | Dynamic Group for Functions and API Gateway.
+| [Policies (compartment)](https://docs.cloud.oracle.com/en-us/iaas/Content/Identity/Concepts/policygetstarted.htm)   | Oracle Cloud Infrastructure Security Policies        | False              | A policy at the compartment level to grant access to ODS, VCN, Functions and API Gateway
+| [Policies (root)](https://docs.cloud.oracle.com/en-us/iaas/Content/Identity/Concepts/policygetstarted.htm)    | Oracle Cloud Infrastructure Security Policies        | False              | A policy at the root compartment level to grant access to OCIR in tenancy.
 
-This Quick Start uses [OCI Resource Manager](https://docs.cloud.oracle.com/iaas/Content/ResourceManager/Concepts/resourcemanager.htm) to make deployment easy, sign up for an [OCI account](https://cloud.oracle.com/en_US/tryit) if you don't have one, and just click the button below:
+## Prerequisite
 
-[![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://console.us-ashburn-1.oraclecloud.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-quickstart/oci-quickstart-template/archive/master.zip)
+- You need a user with an **Administrator** privileges to execute the ORM stack or Terraform scripts.
+- Make sure your tenancy has service limits availabilities for the above components in the table.
 
-After logging into the console you'll be taken through the same steps described
-in the [Deploy](#deploy) section below.
+## Using Terraform
 
+1. Clone repo
 
-Note, if you use this template to create another repo you'll need to change the link for the button to point at your repo.
+   ```bash
+   git clone git@github.com:oracle-quickstart/oci-dls.git
+   cd oci-dls/
+   ```
 
-## Local Development
+1. Create a copy of the file **oci-dls/terraform.tfvars.example** in the same directory and name it **terraform.tfvars**.
 
-First off we'll need to do some pre deploy setup.  That's all detailed [here](https://github.com/oracle/oci-quickstart-prerequisites).
+1. Open the newly created **oci-dls/terraform.tfvars** file and edit the following sections:
+    - **TF Requirements** : Add your Oracle Cloud Infrastructure user and tenant details:
 
-Note, the instructions below build a `.zip` file from you local copy for use in ORM.
-If you want to not use ORM and deploy with the terraform CLI you need to rename
-`provider.tf.cli -> provider.tf`. This is because authentication works slightly
-differently in ORM vs the CLI. This file is ignored by the build process below.
+        ```text
+           #*************************************
+           #           TF Requirements
+           #*************************************
 
-Make sure you have terraform v0.14+ cli installed and accessible from your terminal.
+           // Oracle Cloud Infrastructure Region, user "Region Identifier" as documented here https://docs.cloud.oracle.com/en-us/iaas/Content/General/Concepts/regions.htm
+           region=""
+           // The Compartment OCID to provision artificats within
+           compartment_ocid=""
+           // Oracle Cloud Infrastructure User OCID, more details can be found at https://docs.cloud.oracle.com/en-us/iaas/Content/API/Concepts/apisigningkey.htm#five
+           user_ocid=""
+           // Oracle Cloud Infrastructure tenant OCID, more details can be found at https://docs.cloud.oracle.com/en-us/iaas/Content/API/Concepts/apisigningkey.htm#five
+           tenancy_ocid=""
+           // Path to private key used to create Oracle Cloud Infrastructure "API Key", more details can be found at https://docs.cloud.oracle.com/en-us/iaas/Content/General/Concepts/credentials.htm#two
+           private_key_path=""
+           // "API Key" fingerprint, more details can be found at https://docs.cloud.oracle.com/en-us/iaas/Content/General/Concepts/credentials.htm#two
+           fingerprint=""
+        ```
 
-### Build
+    - **IAM Requirements**: Check default values for IAM artifacts and change them if needed
 
-Simply `build` your package and follow the [Resource Manager instructions](https://docs.cloud.oracle.com/en-us/iaas/Content/ResourceManager/Tasks/managingstacksandjobs.htm#console) for how to create a stack.  Prior to building the Stack, you may want to modify some parts of the deployment detailed below.
+        ```text
+           #*************************************
+           #          IAM Specific
+           #*************************************
 
-In order to `build` the zip file with the latest changes you made to this code, you can simply go to [build-orm](./build-orm) folder and use terraform to generate a new zip file:
+           // ODS IAM Group Name (no spaces)
+           ods_group_name= "DataScienceGroup"
+           // ODS IAM Dynamic Group Name (no spaces)
+           ods_dynamic_group_name= "DataScienceDynamicGroup"
+           // ODS IAM Policy Name (no spaces)
+           ods_policy_name= "DataSciencePolicies"
+           // ODS IAM Root Policy Name (no spaces)
+           ods_root_policy_name= "DataScienceRootPolicies"
+           // If enabled, the needed OCI policies to manage "OCI Vault service" will be created
+           enable_vault_policies= true
+        ```
+
+1. Open file **oci-dls/provider.tf** and uncomment the (user_id , fingerprint, private_key_path) in the **_two_** providers (**Default Provider** and **Home Provider**)
+
+    ```text
+        // Default Provider
+        provider "oci" {
+          region = var.region
+          tenancy_ocid = var.tenancy_ocid
+          ###### Uncomment the below if running locally using terraform and not as Oracle Cloud Infrastructure Resource Manager stack #####
+        //  user_ocid = var.user_ocid
+        //  fingerprint = var.fingerprint
+        //  private_key_path = var.private_key_path
+
+        }
+
+        // Home Provider
+        provider "oci" {
+          alias            = "home"
+          region           = lookup(data.oci_identity_regions.home-region.regions[0], "name")
+          tenancy_ocid = var.tenancy_ocid
+          ###### Uncomment the below if running locally using terraform and not as Oracle Cloud Infrastructure Resource Manager stack #####
+        //  user_ocid = var.user_ocid
+        //  fingerprint = var.fingerprint
+        //  private_key_path = var.private_key_path
+
+        }
+    ```
+1. Make sure you have terraform v0.14+ cli installed and accessible from your terminal.
+
+1. In order to `build` the zip file with the latest changes you made to this code, you can simply go to [build-orm](./build-orm) folder and use terraform to generate a new zip file:
 
 At first time, you are required to initialize the terraform modules used by the template with  `terraform init` command:
 
@@ -79,172 +143,40 @@ Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
 This command will package the content of `simple` folder into a zip and will store it in the `build-orm\dist` folder. You can check the content of the file by running `unzip -l dist/orm.zip`:
 
 ```bash
-$ unzip -l dist/orm.zip
-Archive:  dist/orm.zip
+$ unzip -l dls-orm.zip
+Archive:  dls-orm.zip
   Length      Date    Time    Name
 ---------  ---------- -----   ----
-     1140  01-01-2049 00:00   compute.tf
-      680  01-01-2049 00:00   data_sources.tf
-     1632  01-01-2049 00:00   image_subscription.tf
-     1359  01-01-2049 00:00   locals.tf
-    13548  01-01-2049 00:00   marketplace.yaml
-     2001  01-01-2049 00:00   network.tf
-     2478  01-01-2049 00:00   nsg.tf
-      830  01-01-2049 00:00   oci_images.tf
-     1092  01-01-2049 00:00   outputs.tf
+     2373  01-01-2049 00:00   iam.tf
+     1858  01-01-2049 00:00   schema.yaml
        44  01-01-2049 00:00   scripts/example.sh
-     4848  01-01-2049 00:00   variables.tf
-      311  01-01-2049 00:00   versions.tf
+     1296  01-01-2049 00:00   variables.tf
 ---------                     -------
-    29963                     12 files
+     5571                     4 files
 ```
 
-### Deploy
+## Using Resource Manager
 
-1. [Login](https://console.us-ashburn-1.oraclecloud.com/resourcemanager/stacks/create) to Oracle Cloud Infrastructure to import the stack
-    > `Home > Solutions & Platform > Resource Manager > Stacks > Create Stack`
+1. From Oracle Cloud Infrastructure **Console/Resource Manager**, create a new stack.
+1. Make sure you select **My Configurations** and then upload the zip file downloaded in the previous step.
+1. Set a name for the stack and click Next.
+1. Set the required variables values and then Create.
+    ![create stack](images/create-dls-stack.gif)
 
-2. Upload the `orm.zip` and provide a name and description for the stack
-![Create Stack](./images/create_orm_stack.png)
+1. From the stack details page, Select **Plan** button and make sure it completes successfully.
 
-3. Configure the Stack. The UI will present the variables to the user dynamically, based on their selections. These are the configuration options:
+1. From the stack details page, Select **Apply** button and make sure it completes successfully.
 
-> Compute Configuration
+1. To destroy all created artifacts, from the stack details page, Select **Destroy** under **Terraform Actions** menu button and make sure it completes successfully.
 
-|          VARIABLE          |           DESCRIPTION                                                 |
-|----------------------------|-----------------------------------------------------------------------|
-|COMPUTE COMPARTMENT         | Compartment for Compute resources, including Marketplace subscription |
-|INSTANCE NAME               | Compute instance name|
-|DNS HOSTNAME LABEL          | DNS Hostname|
-|COMPUTE SHAPE               | Compatible Compute shape|
-|FLEX SHAPE OCPUS            | Number of OCPUs, only available for VM.Standard.E3.Flex compute shape|
-|AVAILABILITY DOMAIN         | Availability Domain|
-|PUBLIC SSH KEY STRING       | RSA PUBLIC SSH key string used for sign in to the OS|
+### Provisioning Options
 
-> Virtual Cloud Network
+- **IAM Groups/Policies** change default names of Groups and Policies to be created.
 
-|          VARIABLE          |           DESCRIPTION                                                 |
-|----------------------------|-----------------------------------------------------------------------|
-|NETWORK COMPARTMENT         | Compartment for all Virtual Cloud Network resources|
-|NETWORK STRATEGY            | `Create New VCN and Subnet`: Create new network resources during apply. <br> `Use Existing VCN and Subnet`: Let user select pre-existent network resources.|
-|CONFIGURATION STRATEGY      | `Use Recommended Configuration`: Use default configuration defined by the Terraform template. <br> `Customize Network Configuration`: Allow user to customize network configuration such as name, dns label, cidr block for VCN and Subnet.|
+    ![IAM Configs](images/iam_variables.png)
 
-> Virtual Cloud Network - Customize Network Configuration
+## Contributing
 
-|          VARIABLE          |           DESCRIPTION                                                 |
-|----------------------------|-----------------------------------------------------------------------|
-|NAME                        | VCN Display Name|
-|DNS LABEL                   | VCN DNS LABEL|
-|CIDR BLOCK                  | The CIDR of the new Virtual Cloud Network (VCN). If you plan to peer this VCN with another VCN, the VCNs must not have overlapping CIDRs.|
+`oci-dls` is an open source project. See [CONTRIBUTING](CONTRIBUTING.md) for details.
 
-> Simple Subnet (visible only when `Customize Network Configuration` is selected)
-
-|          VARIABLE          |           DESCRIPTION                                                 |
-|----------------------------|-----------------------------------------------------------------------|
-|SUBNET TYPE                 | `Public Subnet` or `Private Subnet`|
-|NAME                        | Subnet Display Name|
-|DNS LABEL                   | Subnet DNS LABEL|
-|CIDR BLOCK                  | The CIDR of the Subnet. Should not overlap with any other subnet CIDRs|
-|NETWORK SECURITY GROUP CONFIGURATION| `Use Recommended Configuration`: Use default configuration defined by the Terraform template. <br> `Customize Network Security Group`: Allow user to customize some basic network security group settings.|
-
-> Network Security Group (visible only when `Customize Network Security Group` is selected)
-
-|          VARIABLE          |           DESCRIPTION                                                 |
-|----------------------------|-----------------------------------------------------------------------|
-|NAME                        | NSG Display Name|
-|ALLOWED INGRESS TRAFFIC (CIDR BLOCK)| WHITELISTED CIDR BLOCK for ingress traffic|
-|SSH PORT NUMBER             | Default SSH PORT for ingress traffic|
-|HTTP PORT NUMBER            | Default HTTP PORT for ingress traffic|
-|HTTPS PORT NUMBER           | Default HTTPS PORT for ingress traffic|
-
-> Additional Configuration Options
-
-|          VARIABLE          |           DESCRIPTION                                                 |
-|----------------------------|-----------------------------------------------------------------------|
-|TAG KEY NAME                | Free-form tag key name|
-|TAG VALUE                   | Free-form tag value|
-
-4. Click Next and Review the configuration.
-5. Click Create button to confirm and create your ORM Stack.
-6. On Stack Details page, you can now run `Terraform` commands to manage your infrastructure. You typically start with a plan then run apply to create and make changes to the infrastructure. More details below:
-
-|      TERRAFORM ACTIONS     |           DESCRIPTION                                                 |
-|----------------------------|-----------------------------------------------------------------------|
-|Plan                        | `terraform plan` is used to create an execution plan. This command is a convenient way to check the execution plan prior to make any changes to the infrastructure resources.|
-|Apply                       | `terraform apply` is used to apply the changes required to reach the desired state of the configuration described by the template.|
-|Destroy                     | `terraform destroy` is used to destroy the Terraform-managed infrastructure.|
-
-## Customize for Marketplace
-
-In case you wanted to make changes to this template to use a Marketplace image rather than a platform image or custom image, you need to make the following changes.
-
-1. Configure Marketplace listing variables on [`variables.tf`](./variables.tf).
-
-|      VARIABLES             |           DESCRIPTION                                                 |
-|----------------------------|-----------------------------------------------------------------------|
-|mp_subscription_enabled     | Enable subscription to Marketplace.|
-|mp_listing_id               | Marketplace App Catalog Listing OCID.|
-|mp_listing_resource_id      | Marketplace Listing Image OCID.|
-|mp_listing_resource_version | Marketplace Listing Package/Resource Version (Reference value)|
-
-2. Modify [`compute.tf`](./compute.tf) set `source_details` to refer to `local.compute_image_id` rather than `platform_image_id`. The `local.compute_image_id` holds the logic to either refer to the marketplace image or a custom image, based on the `mp_subscription_enabled` flag.
-
-```hcl
-resource "oci_core_instance" "simple-vm" {
-  availability_domain = local.availability_domain
-  compartment_id      = var.compute_compartment_ocid
-  display_name        = var.vm_display_name
-  shape               = var.vm_compute_shape
-
-  dynamic "shape_config" {
-    for_each = local.is_flex_shape
-      content {
-        ocpus = shape_config.value
-      }
-  }
-
-
-  create_vnic_details {
-    subnet_id              = local.use_existing_network ? var.subnet_id : oci_core_subnet.simple_subnet[0].id
-    display_name           = var.subnet_display_name
-    assign_public_ip       = local.is_public_subnet
-    hostname_label         = var.hostname_label
-    skip_source_dest_check = false
-    nsg_ids                = [oci_core_network_security_group.simple_nsg.id]
-  }
-
-  source_details {
-    source_type = "image"
-    #use a marketplace image or custom image:
-    source_id   = local.compute_image_id
-  }
-
-```
-2. Modify [`oci_images.tf`](./oci_images.tf) set `marketplace_source_images` map variable to refer to the marketplace images your Stack will launch.
-
-```hcl
-
-variable "marketplace_source_images" {
-  type = map(object({
-    ocid = string
-    is_pricing_associated = bool
-    compatible_shapes = list(string)
-  }))
-  default = {
-    main_mktpl_image = {
-      ocid = "ocid1.image.oc1..<unique_id>"
-      is_pricing_associated = true
-      compatible_shapes = []
-    }
-    #Remove comment and add as many marketplace images that your stack references be replicated to other realms
-    #supporting_image = {
-    #  ocid = "ocid1.image.oc1..<unique_id>"
-    #  is_pricing_associated = false
-    #  compatible_shapes = ["VM.Standard2.2", "VM.Standard.E2.1.Micro"]
-    #}
-  }
-}
-
-```
-
-2. Run your tests using the Terraform CLI or build a new package and deploy on ORM.
+Oracle gratefully acknowledges the contributions to `oci-dls` that have been made by the community.

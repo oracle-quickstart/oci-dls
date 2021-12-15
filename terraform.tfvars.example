@@ -1,0 +1,36 @@
+t#*************************************
+#          IAM Specific
+#*************************************
+
+// ODS IAM Group Name (no spaces)
+dls_group_name = "DataLabelingGroup"
+// ODS IAM Dynamic Group Name (no spaces)
+dls_dynamic_group_name = "DataLabelingDynamicGroup"
+// ODS IAM Root Policy Name (no spaces)
+dls_root_policy_name = "DataLabelingRootPolicies"
+
+
+#*************************************
+#           TF Requirements
+#*************************************
+
+// OCI Region, user "Region Identifier" as documented here https://docs.cloud.oracle.com/en-us/iaas/Content/General/Concepts/regions.htm
+region = ""
+
+// OCI User OCID, more details can be found at https://docs.cloud.oracle.com/en-us/iaas/Content/API/Concepts/apisigningkey.htm#five
+user_ocid = ""
+
+// OCI tenant OCID, more details can be found at https://docs.cloud.oracle.com/en-us/iaas/Content/API/Concepts/apisigningkey.htm#five
+tenancy_ocid = ""
+
+// Path to private key used to create OCI "API Key", more details can be found at https://docs.cloud.oracle.com/en-us/iaas/Content/General/Concepts/credentials.htm#two
+private_key_path = ""
+
+// "API Key" fingerprint, more details can be found at https://docs.cloud.oracle.com/en-us/iaas/Content/General/Concepts/credentials.htm#two
+fingerprint = ""
+
+// Name of the root compartment
+compartment_name = ""
+
+// List of users to be added to the group by admin user
+non_admin_users =["","",""]
