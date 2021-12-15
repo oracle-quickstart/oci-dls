@@ -55,6 +55,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ github.workspace }}${{ env.PROJECT_WORKING_DIR }}export-dist/orm.zip
+          asset_path: ${{ github.workspace }}${{ env.PROJECT_WORKING_DIR }}export-dist/dls-orm.zip
           asset_name: orm-stack.zip
           asset_content_type: application/zip
