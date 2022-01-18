@@ -98,15 +98,15 @@ Below is a list of all artifacts that will be provisioned:
     ```
 1. Make sure you have terraform v1.0+ cli installed and accessible from your terminal.
 
-1. Initialize terraform provider
+Initialize terraform provider -
 
 > terraform init
 
-1. Plan terraform scripts
+Plan terraform scripts -
 
 > terraform plan
 
-1. Run terraform scripts
+Run terraform scripts -
 
 > terraform apply -auto-approve
 
@@ -169,17 +169,17 @@ ORM stack creation requires a .zip of the terraform configuration files to be up
 
 1. Make sure you have terraform v1.0+ cli installed and accessible from your terminal
 
-1. cd build-orm
+> cd build-orm
 
-1. Initialize terraform provider
+Initialize terraform provider -
 
 > terraform init
 
-1. Plan terraform scripts
+Plan terraform scripts -
 
 > terraform plan
 
-1. Run terraform scripts
+Run terraform scripts -
 
 > terraform apply -auto-approve
 
@@ -197,11 +197,11 @@ Archive:  dls-orm-2022-01-18T15:10:23Z.zip
      1296  01-01-2049 00:00   variables.tf
 ---------                     -------
 ```
-1. Download the dls-orm-<timestamp>.zip file
+1. Download the dls-orm-timestamp.zip file
 
 1. From Oracle Cloud Infrastructure **Console/Resource Manager**, create a new stack.
 
-1. Select **My Configurations** and then upload the zip file.
+1. Select **My Configurations** and upload the zip file.
 
 1. Set a name for the stack and click Next.
 
@@ -213,12 +213,6 @@ Archive:  dls-orm-2022-01-18T15:10:23Z.zip
 1. From the stack details page, Select **Apply** button and make sure it completes successfully.
 
 1. To destroy all created artifacts, from the stack details page, Select **Destroy** under **Terraform Actions** menu button and make sure it completes successfully.
-
-### Provisioning Options
-
-- **IAM Groups/Policies** change default names of Groups and Policies to be created.
-
-    ![IAM Configs](images/iam_variables.png)
 
 ## Contributing
 
