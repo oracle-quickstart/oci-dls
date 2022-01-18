@@ -98,16 +98,19 @@ Below is a list of all artifacts that will be provisioned:
     ```
 1. Make sure you have terraform v1.0+ cli installed and accessible from your terminal.
 
-Initialize terraform provider
+1. Initialize terraform provider
 
 > terraform init
-Plan terraform scripts
+
+1. Plan terraform scripts
 
 > terraform plan
-Run terraform scripts
+
+1. Run terraform scripts
 
 > terraform apply -auto-approve
-To Destroy all created artifacts
+
+If you wish to Destroy all created artifacts use -
 
 > terraform destroy -auto-approve
 
@@ -164,49 +167,21 @@ ORM stack creation requires a .zip of the terraform configuration files to be up
            enable_vault_policies= true
         ```
 
-1. Make sure you have terraform v1.0+ cli installed and accessible from your terminal.
-
-1. In order to `build` the zip file with the latest changes you made to this code
+1. Make sure you have terraform v1.0+ cli installed and accessible from your terminal
 
 1. cd build-orm
 
-For the first time, you are required to initialize the terraform modules used by the template with  `terraform init` command:
+1. Initialize terraform provider
 
-```bash
-$ terraform init
+> terraform init
 
-Initializing the backend...
+1. Plan terraform scripts
 
-Initializing provider plugins...
-- Finding latest version of hashicorp/archive...
-- Installing hashicorp/archive v2.1.0...
-- Installed hashicorp/archive v2.1.0 (signed by HashiCorp)
+> terraform plan
 
-Terraform has created a lock file .terraform.lock.hcl to record the provider
-selections it made above. Include this file in your version control repository
-so that Terraform can guarantee to make the same selections by default when
-you run "terraform init" in the future.
+1. Run terraform scripts
 
-Terraform has been successfully initialized!
-
-You may now begin working with Terraform. Try running "terraform plan" to see
-any changes that are required for your infrastructure. All Terraform commands
-should now work.
-
-If you ever set or change modules or backend configuration for Terraform,
-rerun this command to reinitialize your working directory. If you forget, other
-commands will detect it and remind you to do so if necessary.
-```
-
-Once terraform is initialized, just run `terraform apply` to generate ORM zip file.
-
-```bash
-$ terraform apply
-
-data.archive_file.generate_zip: Refreshing state...
-
-Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
-```
+> terraform apply -auto-approve
 
 This command will package the required files into a zip and will store it in the `build-orm\dist` folder. You can check the content of the file by running `unzip -l filename.zip`:
 
@@ -222,12 +197,11 @@ Archive:  dls-orm-2022-01-18T15:10:23Z.zip
      1296  01-01-2049 00:00   variables.tf
 ---------                     -------
 ```
-
 1. Download the dls-orm-<timestamp>.zip file
 
 1. From Oracle Cloud Infrastructure **Console/Resource Manager**, create a new stack.
 
-1. Make sure you select **My Configurations** and then upload the zip file.
+1. Select **My Configurations** and then upload the zip file.
 
 1. Set a name for the stack and click Next.
 
